@@ -673,34 +673,32 @@ function main(config){
 		for (i in presetnames) presetconfig.push({name:presetnames[i],realname:presetdescription[i],htmlname:presethtmlnames[i],margin:4})
 
 		var onChoosepresetconfig = function(data){
-			if (data.isOn) {
-				var firstletter = data.htmlname[0]
-				if (firstletter == 'e' || firstletter == 's') {
-					config = loadpreset(data.htmlname)
-					loadDefaults()
-					model.reset(true);
-					model.onInit();
-					setInPosition();
-					selectUI();
-				} else if (firstletter == 'b') {
-					//document.location.replace(data.htmlname);
-					ballotconfig = loadpreset(data.htmlname)
-					var systemTranslator = {Plurality:"FPTP",Ranked:"Condorcet",Approval:"Approval",Score:"Score",Three:"3-2-1"}
-					config = {}
-					config.system = systemTranslator[ballotconfig.system]
-					var s = ballotconfig.strategy || "zero strategy. judge on an absolute scale."
-					config.voterStrategies = [s,s,s]
-					config.frontrunnerSet = ballotconfig.frontrunnerSet
-					config.featurelist = []
-					if (ballotconfig.showChoiceOfFrontrunners) {config.featurelist.push("frontrunners")}
-					if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("strategy")}
-					config.oneVoter = true
-					loadDefaults()
-					model.reset(true);
-					model.onInit();
-					setInPosition();
-					selectUI();
-				}
+			var firstletter = data.htmlname[0]
+			if (firstletter == 'e' || firstletter == 's' || firstletter == 'f') {
+				config = loadpreset(data.htmlname)
+				loadDefaults()
+				model.reset(true);
+				model.onInit();
+				setInPosition();
+				selectUI();
+			} else if (firstletter == 'b') {
+				//document.location.replace(data.htmlname);
+				ballotconfig = loadpreset(data.htmlname)
+				var systemTranslator = {Plurality:"FPTP",Ranked:"Condorcet",Approval:"Approval",Score:"Score",Three:"3-2-1"}
+				config = {}
+				config.system = systemTranslator[ballotconfig.system]
+				var s = ballotconfig.strategy || "zero strategy. judge on an absolute scale."
+				config.voterStrategies = [s,s,s]
+				config.frontrunnerSet = ballotconfig.frontrunnerSet
+				config.featurelist = []
+				if (ballotconfig.showChoiceOfFrontrunners) {config.featurelist.push("frontrunners")}
+				if (ballotconfig.showChoiceOfStrategy) {config.featurelist.push("strategy")}
+				config.oneVoter = true
+				loadDefaults()
+				model.reset(true);
+				model.onInit();
+				setInPosition();
+				selectUI();
 			}
 		};
 		window.choosepresetconfig = new ButtonGroup({
@@ -714,6 +712,21 @@ function main(config){
 		
 		if(window.choosepresetconfig) choosepresetconfig.highlight("htmlname", config.presethtmlname);
 		// only do this once.  Otherwise it would be in SelectUI
+
+
+		// Also handle messages from the parent window
+		function bindEvent(element, eventName, eventHandler) {
+            if (element.addEventListener) {
+                element.addEventListener(eventName, eventHandler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent('on' + eventName, eventHandler);
+            }
+        }
+        // Listen to messages from parent window
+        bindEvent(window, 'message', function (e) {
+			onChoosepresetconfig({htmlname:parent.globalHtmlName})
+        });
+
 
 
 		var computeMethod = [{name:"gpu",margin:4},{name:"js",margin:4},{name:"ez"}]
@@ -798,8 +811,6 @@ function main(config){
 		var resetDOM = document.createElement("div");
 		resetDOM.id = "reset";
 		resetDOM.innerHTML = "reset";
-		resetDOM.style.top = "340px";
-		resetDOM.style.left = "350px";
 		resetDOM.onclick = function(){
 
 			config = JSON.parse(JSON.stringify(initialConfig)); // RESTORE IT!
@@ -813,7 +824,7 @@ function main(config){
 			selectUI();
 
 		};
-		document.body.appendChild(resetDOM);
+		document.querySelector("#center").appendChild(resetDOM);
 
 
 		///////////////////////////
@@ -903,29 +914,15 @@ function main(config){
 				// yay.
 				descText.value = initialConfig.description;
 			}
-			// Move that reset button
-			if (config.sandboxsave) {
-				resetDOM.style.top = "470px";
-				resetDOM.style.left = "235px";
-			} else {
-				resetDOM.style.top = "340px";
-				resetDOM.style.left = "245px";
-			}
 			// Create a "save" button
 			var saveDOM = document.createElement("div");
 			saveDOM.id = "save";
 			saveDOM.innerHTML = "save:";
-			if (config.sandboxsave) {
-				saveDOM.style.top = "470px";
-				saveDOM.style.left = "350px";
-			} else {
-				saveDOM.style.top = "340px";
-				saveDOM.style.left = "350px";
-			}
+			
 			saveDOM.onclick = function(){
 				_saveModel();
 			};
-			document.body.appendChild(saveDOM);
+			document.querySelector("#center").appendChild(saveDOM);
 
 			// The share link textbox
 			linkText = document.createElement("input");
@@ -935,16 +932,7 @@ function main(config){
 			linkText.onclick = function(){
 				linkText.select();
 			};
-			if (config.sandboxsave) {
-				//skip
-			} else {
-				linkText.style.position = "absolute";
-				linkText.style.top = "340px";
-				linkText.style.left = "460px";
-				linkText.style.height = "30px";
-				linkText.style.width = "90px";
-			}
-			document.body.appendChild(linkText);
+			document.querySelector("#center").appendChild(linkText);
 
 			// Create a URL... (later, PARSE!)
 			// save... ?d={s:[system], v:[voterPositions], c:[candidatePositions], d:[description]}

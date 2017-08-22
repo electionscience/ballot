@@ -1,0 +1,53 @@
+div.target  {
+	margin: 0;
+	padding: 0;
+}
+
+#main {
+	left: 500px;
+	right: 0px;
+	position:absolute;
+}
+
+#main div.target {
+	background: #ccc;
+}
+
+#main div.target:nth-child(even) {
+	background: #eee;
+}
+
+#nav {
+	position: absolute;
+	font-size: 10px;
+	top: 0%;
+	left: 340px;
+}
+
+#nav nav {
+	position: fixed;
+	width: 100px;
+	height: 20%;
+}
+
+#nav a {
+	border-bottom: 1px solid #666;
+	color: #333;
+	display: block;
+	padding: 1px;
+	text-align: center;
+	text-decoration: none;
+}
+
+#nav a:hover, #nav a.active {
+	background: #666;
+	color: #fff;
+}
+
+#fixedbox {
+	top: 0%;
+	left: 0%;
+	width: 500px;
+	height: 100%;
+	position: fixed;
+}
